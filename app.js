@@ -1,9 +1,11 @@
 //TODO: Add left bar with prices
-//TODO: toggle between daily and hourly
 //TODO: create news feed
 //TODO: implement refresh every 60 sec
 //TODO: get image and finish table
 //TODO: add transitions on change
+//TODO: implement low price on bars
+//TODO: make svg responsive
+//TODO: make filter buttons
 
 let app = new Vue({
   el: "#app",
@@ -11,41 +13,51 @@ let app = new Vue({
     coins: [],
     prices: [],
     pricesNorm: [],
+    currentCoin: 'BTC',
+    timeMode: 'histoday',
     max: 0,
     min: 0
   },
+
   created: function() {
     this.getCoins();
     this.getCoinPrices()
   },
+
   methods: {
 
-    // Change chart on click
+    // Change coin on click
     handleClick: function(c) {
-      let symbol = c.symbol;
-      this.getCoinPrices(symbol);
+      this.currentCoin = c.symbol;
+      this.getCoinPrices();
     },
 
-    getCoinPrices: function(symbol = 'BTC') {
-      // HOURLY 
-      //https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=10
-      fetch(`https://min-api.cryptocompare.com/data/histoday?fsym=${symbol}&tsym=USD&limit=10`,)
-      .then(res => res.json())
-      .catch(err => console.log(err))
-      .then(data => {
-        console.log(data);
-        this.prices = data.Data;
-        this.getRange();
-      });
+    // Change timeMode on click
+    changeMode: function(m) {
+      if(m === 'daily') this.timeMode = 'histoday';
+      if(m === 'hourly') this.timeMode = 'histohour';
+      this.getCoinPrices();
+    },
+
+    getCoinPrices: function() {
+
+      let fetchURL = `https://min-api.cryptocompare.com/data/${this.timeMode}?fsym=${this.currentCoin}&tsym=USD&limit=10`;
+
+      fetch(fetchURL)
+        .then(res => res.json())
+        .catch(err => console.log(err))
+        .then(data => {
+          console.log(data);
+          this.prices = data.Data;
+          this.getRange();
+        });
     },
 
     getCoins: function() {
       fetch('https://api.coinmarketcap.com/v2/ticker/?limit=10',)
         .then(res => res.json())
         .catch(err => console.log(err))
-        .then(data => {
-          this.coins = data.data;
-        });
+        .then(data => this.coins = data.data);
     },
 
     getRange: function() {
@@ -66,7 +78,9 @@ let app = new Vue({
       this.prices.forEach(price => {
         let date = new Date(price.time * 1000);
         date = date.toString().split(' ');
-        date = `${date[1]} ${date[2]}`;
+        if(this.timeMode === 'histoday') date = `${date[1]} ${date[2]}`;
+        if(this.timeMode === 'histohour') date = `${date[4].slice(0,5)}`;
+        
         let normPrice = {
           normHigh: 0 + (price.high - this.min) * (390 - 0) / (this.max - this.min),
           normLow: 0 + (price.low - this.min) * (390 - 0) / (this.max - this.min),
@@ -77,8 +91,6 @@ let app = new Vue({
         counter += 36;
         this.pricesNorm.push(normPrice);
       });
-      console.log(this.prices);
-      console.log(this.pricesNorm);
     },
 
     getCoinImage: function(symbol) {

@@ -32,6 +32,10 @@
           </text>
         </g>
       </svg>
+      <div>
+        <button v-on:click="changeMode('daily')">Daily</button>
+        <button v-on:click="changeMode('hourly')">Hourly</button>
+      </div>
       <div v-for="coin in coins">
         <p v-on:click="handleClick(coin)">{{ coin.name }} - {{ coin.quotes.USD.price }}</p>
       </div>
