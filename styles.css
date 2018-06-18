@@ -1,3 +1,6 @@
 text {
   font-size: 11px;
 }
+p {
+  cursor: pointer;
+}

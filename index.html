@@ -9,7 +9,22 @@
   </head>
   <body>
     <div id="app">
-      <svg height="440" width="400" viewBox="0 0 400 400">
+      <svg height="440" width="420" viewBox="0 0 440 440">
+        <g v-for="bar in barArray">
+          <text
+            x="0"
+            v-bind:y="405 - bar.yPos"
+          >
+            {{ bar.text }}
+          </text>
+          <rect
+            x="36"
+            v-bind:y="400 - bar.yPos"
+            height="1"
+            width="390"
+          >
+          </rect>
+        </g>
         <g v-for="price in pricesNorm">
           <text
             v-bind:x="price.counter + 3"

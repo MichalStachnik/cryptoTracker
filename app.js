@@ -1,4 +1,3 @@
-//TODO: Add left bar with prices
 //TODO: create news feed
 //TODO: implement refresh every 60 sec
 //TODO: get image and finish table
@@ -6,6 +5,8 @@
 //TODO: implement low price on bars
 //TODO: make svg responsive
 //TODO: make filter buttons
+//TODO: add user login with firebase
+//TODO: add hover on bars
 
 let app = new Vue({
   el: "#app",
@@ -16,7 +17,8 @@ let app = new Vue({
     currentCoin: 'BTC',
     timeMode: 'histoday',
     max: 0,
-    min: 0
+    min: 0,
+    barArray: []
   },
 
   created: function() {
@@ -38,7 +40,29 @@ let app = new Vue({
       if(m === 'hourly') this.timeMode = 'histohour';
       this.getCoinPrices();
     },
+    drawBars: function() {
+      this.barArray = []; 
+      console.log(this.max, this.min);
+      // Get highest bar
+      let highBar = Math.floor(this.max / 100) * 100;
+      console.log(highBar);
 
+      // Get low bar
+      let lowBar = Math.floor(this.min / 100) * 100;
+      console.log(lowBar);
+    
+      let diff = highBar - lowBar;
+      console.log(diff);
+      let rate = 0;
+      if(diff > 1000) rate = 100;
+      else rate = 10;
+      console.log(this.barArray);
+      for(let max = highBar; max > lowBar; max -= rate){
+        let text = max;
+        let yPos = 0 + (max - this.min) * (390 - 0) / (this.max - this.min);
+        this.barArray.push({ text, yPos });
+      }
+    },
     getCoinPrices: function() {
 
       let fetchURL = `https://min-api.cryptocompare.com/data/${this.timeMode}?fsym=${this.currentCoin}&tsym=USD&limit=10`;
@@ -70,10 +94,11 @@ let app = new Vue({
       this.max = max;
       this.min = min;
       this.normalizePrices();
+      this.drawBars();
     },
 
     normalizePrices: function() {
-      let counter = 0;
+      let counter = 36;
       this.pricesNorm = [];
       this.prices.forEach(price => {
         let date = new Date(price.time * 1000);
