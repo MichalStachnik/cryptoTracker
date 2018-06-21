@@ -51,8 +51,21 @@
         <button v-on:click="changeMode('daily')">Daily</button>
         <button v-on:click="changeMode('hourly')">Hourly</button>
       </div>
-      <div v-for="coin in coins">
-        <p v-on:click="handleClick(coin)">{{ coin.name }} - {{ coin.quotes.USD.price }}</p>
+      <div class="container">
+        <div>
+          <div class="box title" v-on:click="titleClick('name')">Name</div>
+          <div class="box title" v-on:click="titleClick('price')">Current Price</div>
+          <div class="box title" v-on:click="titleClick('hourly')">Hourly Change</div>
+          <div class="box title" v-on:click="titleClick('24')">24 Hour Change</div>
+          <div class="box title" v-on:click="titleClick('weekly')">Weekly Change</div>
+        </div>
+        <div v-for="coin in coinsArray">
+          <div class="box" v-on:click="handleClick(coin)">{{ coin.name }}</div>
+          <div class="box">{{ coin.quotes.USD.price }}</div>
+          <div class="box">{{ coin.quotes.USD.percent_change_1h }}</div>
+          <div class="box">{{ coin.quotes.USD.percent_change_24h }}</div>
+          <div class="box">{{ coin.quotes.USD.percent_change_7d }}</div>
+        </div>
       </div>
     </div>
 

@@ -1,6 +1,19 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+#app {
+ background: #333;
+ text-align: center;
+}
 text {
   font-size: 11px;
 }
-p {
+.box {
+  display: inline-block;
+  width: 18vw;
+  padding: 5px;
+}
+.title {
   cursor: pointer;
 }

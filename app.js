@@ -18,12 +18,13 @@ let app = new Vue({
     timeMode: 'histoday',
     max: 0,
     min: 0,
-    barArray: []
+    barArray: [],
+    coinsArray: []
   },
 
   created: function() {
     this.getCoins();
-    this.getCoinPrices()
+    this.getCoinPrices();
   },
 
   methods: {
@@ -41,22 +42,23 @@ let app = new Vue({
       this.getCoinPrices();
     },
     drawBars: function() {
+      // TODO: Make work for range 0 - 10
       this.barArray = []; 
       console.log(this.max, this.min);
+      let divRate = this.max > 1000 ? 100 : 10
       // Get highest bar
-      let highBar = Math.floor(this.max / 100) * 100;
+      let highBar = Math.floor(this.max / divRate) * divRate;
       console.log(highBar);
 
       // Get low bar
-      let lowBar = Math.floor(this.min / 100) * 100;
-      console.log(lowBar);
+      let lowBar = Math.floor(this.min / divRate) * divRate;
+      console.log('LOWBAR',lowBar);
     
       let diff = highBar - lowBar;
       console.log(diff);
       let rate = 0;
       if(diff > 1000) rate = 100;
       else rate = 10;
-      console.log(this.barArray);
       for(let max = highBar; max > lowBar; max -= rate){
         let text = max;
         let yPos = 0 + (max - this.min) * (390 - 0) / (this.max - this.min);
@@ -81,7 +83,14 @@ let app = new Vue({
       fetch('https://api.coinmarketcap.com/v2/ticker/?limit=10',)
         .then(res => res.json())
         .catch(err => console.log(err))
-        .then(data => this.coins = data.data);
+        .then(data => {
+          this.coins = data.data;
+          // Build usable array for sorting
+          for(let item in this.coins){
+            this.coinsArray.push(this.coins[item]);
+          }
+
+        });
     },
 
     getRange: function() {
@@ -117,12 +126,25 @@ let app = new Vue({
         this.pricesNorm.push(normPrice);
       });
     },
+    titleClick: function(param) {
+      //Sort by title click
+      switch (param){
+        case 'price':
+          this.coinsArray.sort((first, second) => second.quotes.USD.price - first.quotes.USD.price);
+          break;
+        case 'hourly':
+          this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_1h - first.quotes.USD.percent_change_1h);
+          break;
+        case '24':
+          this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_24h - first.quotes.USD.percent_change_24h);
+          break;
+        case 'weekly':
+          this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_7d - first.quotes.USD.percent_change_7d);
+          break;
+      }
+    },
 
     getCoinImage: function(symbol) {
     }
   }
 });
-// Normalization
-// A = min, B = max
-// a = min of range to be normed, b = max of range to be normed
-// a + (x - A) * (b - a) / (B - A)
