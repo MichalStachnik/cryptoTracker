@@ -17,7 +17,8 @@ let app = new Vue({
     max: 0,
     min: 0,
     barArray: [],
-    coinsArray: []
+    coinsArray: [],
+    hovering: false
   },
 
   created: function() {
@@ -26,43 +27,60 @@ let app = new Vue({
   },
 
   methods: {
-
     // Change coin on click
     handleClick: function(c) {
       this.currentCoin = c.symbol;
       this.getCoinPrices();
     },
-
+    hoverFunc: function(param) {
+      const textToShow = document.getElementById('textBox' + param);
+      textToShow.style.display = 'block';
+    },
+    hoverOutFunc: function(param) {
+      const textToHide = document.getElementById('textBox' + param);
+      textToHide.style.display = 'none';
+    },
     // Change timeMode on click
     changeMode: function(m) {
       if(m === 'daily') this.timeMode = 'histoday';
       if(m === 'hourly') this.timeMode = 'histohour';
       this.getCoinPrices();
     },
+
     drawBars: function() {
-      // TODO: Make work for range 0 - 10
       this.barArray = []; 
       console.log(this.max, this.min);
-      let divRate = this.max > 1000 ? 100 : 10
+
+      let localMin = this.max;
+      this.pricesNorm.forEach(x => {
+        if(x.priceHigh < localMin) localMin = x.priceHigh;
+      })
+      
+      console.log(localMin);
+      let divRate = this.max - this.min > 1000 ? 100 : 10
       // Get highest bar
       let highBar = Math.floor(this.max / divRate) * divRate;
-      console.log(highBar);
+      console.log('HIGHBAR', highBar);
 
       // Get low bar
       let lowBar = Math.floor(this.min / divRate) * divRate;
       console.log('LOWBAR',lowBar);
     
       let diff = highBar - lowBar;
-      console.log(diff);
+      console.log('diff', diff);
       let rate = 0;
       if(diff > 1000) rate = 100;
-      else rate = 10;
-      for(let max = highBar; max > lowBar; max -= rate){
+      else if(diff < 1000 && diff > 500) rate = 50;
+      else if (diff < 500 && diff > 20) rate = 10;
+      else rate = 1;
+      console.log('RATE', rate);
+      for(let max = highBar; max > localMin - rate; max -= rate){
         let text = max;
         let yPos = 0 + (max - this.min) * (390 - 0) / (this.max - this.min);
         this.barArray.push({ text, yPos });
       }
     },
+
     getCoinPrices: function() {
 
       let fetchURL = `https://min-api.cryptocompare.com/data/${this.timeMode}?fsym=${this.currentCoin}&tsym=USD&limit=10`;
@@ -87,7 +105,6 @@ let app = new Vue({
           for(let item in this.coins){
             this.coinsArray.push(this.coins[item]);
           }
-
         });
     },
 
@@ -124,6 +141,7 @@ let app = new Vue({
         this.pricesNorm.push(normPrice);
       });
     },
+
     titleClick: function(param) {
       //Sort by title click
       switch (param){
@@ -141,7 +159,9 @@ let app = new Vue({
           break;
       }
     },
-
+    getColor(num) {
+      return num > 0 ? 'color: lightgreen;' : 'color: lightcoral;';
+    },
     getCoinImage: function(symbol) {
     }
   }

@@ -3,11 +3,16 @@
   margin: 0;
 }
 #app {
- background: #333;
+ background: #243e50;
  text-align: center;
+ font-family: Helvetica;
+ height: 100%;
 }
 text {
   font-size: 11px;
+}
+.container {
+  margin-top: 20px;
 }
 .box {
   display: inline-block;
@@ -17,6 +22,29 @@ text {
 .title, .name {
   cursor: pointer;
 }
+.title{
+  background: salmon;
+  color: white;
+}
 .bar {
   transition: .5s all ease-in-out;
+}
+.vertBar {
+  fill: rgba(255, 179, 16, 0.9);
+}
+.row {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid white;
+}
+button {
+  cursor: pointer;
+  padding: 5px;
+  border: 1px solid salmon;
+  background: salmon;
+  color: white;
+}
+.text {
+  display: none;
+  fill: white;
 }

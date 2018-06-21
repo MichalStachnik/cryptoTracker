@@ -17,7 +17,9 @@
           >
             {{ bar.text }}
           </text>
+          <!-- NEEDS TO BE FIXED -->
           <rect
+            class="bar"
             x="36"
             v-bind:y="400 - bar.yPos"
             height="1"
@@ -25,19 +27,23 @@
           >
           </rect>
         </g>
-        <g v-for="price in pricesNorm">
+        <g v-for="(price, index) in pricesNorm">
           <text
+            class="text"
+            v-bind:id="'textBox' + index"
             v-bind:x="price.counter + 3"
             v-bind:y="390 - price.normHigh"
           >
             {{ price.priceHigh }}
           </text>
           <rect 
-            class="bar"
+            class="bar vertBar"
             v-bind:x="price.counter" 
             v-bind:y="400 - price.normHigh" 
             width="30" 
             v-bind:height="price.normHigh"
+            v-on:mouseover="hoverFunc(index)"
+            v-on:mouseout="hoverOutFunc(index)"
           >
           </rect>
           <text
@@ -54,18 +60,18 @@
       </div>
       <div class="container">
         <div>
-          <div class="box title" v-on:click="titleClick('name')">Name</div>
+          <div class="box"></div>
           <div class="box title" v-on:click="titleClick('price')">Current Price</div>
           <div class="box title" v-on:click="titleClick('hourly')">Hourly Change</div>
           <div class="box title" v-on:click="titleClick('24')">24 Hour Change</div>
           <div class="box title" v-on:click="titleClick('weekly')">Weekly Change</div>
         </div>
-        <div v-for="coin in coinsArray">
+        <div class="row" v-for="coin in coinsArray">
           <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>
-          <div class="box">{{ coin.quotes.USD.price }}</div>
-          <div class="box">{{ coin.quotes.USD.percent_change_1h }}</div>
-          <div class="box">{{ coin.quotes.USD.percent_change_24h }}</div>
-          <div class="box">{{ coin.quotes.USD.percent_change_7d }}</div>
+          <div class="box">{{ coin.quotes.USD.price.toFixed(2) }}</div>
+          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_1h)">{{ coin.quotes.USD.percent_change_1h }}%</div>
+          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_24h)">{{ coin.quotes.USD.percent_change_24h }}%</div>
+          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_7d)">{{ coin.quotes.USD.percent_change_7d }}%</div>
         </div>
       </div>
     </div>
