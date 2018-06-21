@@ -1,10 +1,8 @@
 //TODO: create news feed
 //TODO: implement refresh every 60 sec
 //TODO: get image and finish table
-//TODO: add transitions on change
 //TODO: implement low price on bars
 //TODO: make svg responsive
-//TODO: make filter buttons
 //TODO: add user login with firebase
 //TODO: add hover on bars
 

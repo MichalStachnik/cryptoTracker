@@ -33,6 +33,7 @@
             {{ price.priceHigh }}
           </text>
           <rect 
+            class="bar"
             v-bind:x="price.counter" 
             v-bind:y="400 - price.normHigh" 
             width="30" 
@@ -60,7 +61,7 @@
           <div class="box title" v-on:click="titleClick('weekly')">Weekly Change</div>
         </div>
         <div v-for="coin in coinsArray">
-          <div class="box" v-on:click="handleClick(coin)">{{ coin.name }}</div>
+          <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>
           <div class="box">{{ coin.quotes.USD.price }}</div>
           <div class="box">{{ coin.quotes.USD.percent_change_1h }}</div>
           <div class="box">{{ coin.quotes.USD.percent_change_24h }}</div>

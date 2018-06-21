@@ -14,6 +14,9 @@ text {
   width: 18vw;
   padding: 5px;
 }
-.title {
+.title, .name {
   cursor: pointer;
+}
+.bar {
+  transition: .5s all ease-in-out;
 }
