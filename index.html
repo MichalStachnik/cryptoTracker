@@ -9,7 +9,8 @@
   </head>
   <body>
     <div id="app">
-      <svg height="440" width="420" viewBox="0 0 440 440">
+      <h2>{{ currentCoin }}</h2>
+      <svg width="40%" viewBox="0 0 440 440">
         <g v-for="bar in barArray">
           <text
             x="0"
@@ -37,13 +38,14 @@
             {{ price.priceHigh }}
           </text>
           <rect 
-            class="bar vertBar"
+            class="vertBar"
             v-bind:x="price.counter" 
             v-bind:y="400 - price.normHigh" 
             width="30" 
             v-bind:height="price.normHigh"
             v-on:mouseover="hoverFunc(index)"
             v-on:mouseout="hoverOutFunc(index)"
+            v-bind:fill="price.fillColor"
           >
           </rect>
           <text
@@ -55,19 +57,21 @@
         </g>
       </svg>
       <div>
-        <button v-on:click="changeMode('daily')">Daily</button>
-        <button v-on:click="changeMode('hourly')">Hourly</button>
+        <button class="title graphButton title-active" v-on:click="changeMode('daily')">1d</button>
+        <button class="title graphButton" v-on:click="changeMode('hourly')">1hr</button>
       </div>
       <div class="container">
         <div>
           <div class="box"></div>
-          <div class="box title" v-on:click="titleClick('price')">Current Price</div>
-          <div class="box title" v-on:click="titleClick('hourly')">Hourly Change</div>
-          <div class="box title" v-on:click="titleClick('24')">24 Hour Change</div>
-          <div class="box title" v-on:click="titleClick('weekly')">Weekly Change</div>
+          <button class="box title tableButton" id="marketCap" v-on:click="titleClick('marketCap')">Market Cap</button>
+          <button class="box title tableButton" id="price" v-on:click="titleClick('price')">Current Price</button>
+          <button class="box title tableButton" id="hourly" v-on:click="titleClick('hourly')">Hourly Change</button>
+          <button class="box title tableButton" id="daily" v-on:click="titleClick('daily')">24 Hour Change</button>
+          <button class="box title tableButton" id="weekly" v-on:click="titleClick('weekly')">Weekly Change</button>
         </div>
         <div class="row" v-for="coin in coinsArray">
-          <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>
+          <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>  
+          <div class="box">{{ getMarketCap(coin) }}</div>
           <div class="box">{{ coin.quotes.USD.price.toFixed(2) }}</div>
           <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_1h)">{{ coin.quotes.USD.percent_change_1h }}%</div>
           <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_24h)">{{ coin.quotes.USD.percent_change_24h }}%</div>
