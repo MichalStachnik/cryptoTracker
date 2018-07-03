@@ -19,7 +19,7 @@ text {
   fill: #EBEDF3;
 }
 .container {
-  margin: 30px 0;
+  margin: 20px 0;
 }
 .box {
   display: inline-block;
@@ -69,8 +69,9 @@ text {
   border-left: 1px solid #EBEDF3;
   border-bottom: 1px solid #EBEDF3;
   padding: 10px 0;
+  position: relative;
 }
-.container .row:nth-child(2) {
+.container .row:nth-child(3) {
   border-top: 1px solid #EBEDF3;
   margin-top: 10px;
 }
@@ -86,6 +87,11 @@ button {
   fill: #EBEDF3;
   transition: .3s opacity ease-in-out;
 }
+.textBoxBG {
+  opacity: 0;
+  transition: .3s opacity ease-in-out;
+  fill: #2C3339;;
+}
 
 .graphButton {
   width: 8vw;
@@ -100,10 +106,23 @@ button {
 }
 
 .box:nth-child(2) {
-  text-align:right;
+  text-align: right;
   font-size: 11px;
 }
 
 #marketCap {
   text-align: center; 
+}
+#tableBG {
+  position: absolute;
+  margin-top: 21px;
+  margin-left: 2.5vw;
+  left: 0;
+  width: 95vw;
+  height: 70vh;
+}
+#tableBGBar {
+  fill: #EBEDF3;
+  opacity: 0.4;
+  transition: .4s all ease-in-out;
 }

@@ -3,11 +3,10 @@
 //TODO: get images
 //TODO: implement low price on bars
 //TODO: add user login with firebase
-//TODO: add animation on click to table
 //TODO: add inset to buttons on active
 //TODO: reduce num of horiztonal bars to same uniform amount
-//TODO: add functionality to market cap button
 //TODO: implement line with <path/> option for graph
+//TODO: add hover on table
 
 let app = new Vue({
   el: "#app",
@@ -21,7 +20,8 @@ let app = new Vue({
     min: 0,
     barArray: [],
     coinsArray: [],
-    filterByHighest: true
+    filterByHighest: true,
+    hoverBarY: 0
   },
 
   created: function() {
@@ -34,17 +34,28 @@ let app = new Vue({
     // Change coin on click
     handleClick: function(c) {
       this.currentCoin = c.symbol;
+      this.moveTableBar();
       this.getCoinPrices();
     },
-    
+    moveTableBar: function() {
+      const clickedCoin = this.coinsArray.filter(coin => {
+        return coin.symbol === this.currentCoin;
+      });
+      const clickedCoinPos = clickedCoin[0].pos;
+      this.hoverBarY = clickedCoinPos * 49;
+    },
     hoverFunc: function(param) {
-      const textToShow = document.getElementById('textBox' + param);
+      const textToShow = document.getElementById(`textBox${param}`);
+      const bgToShow = document.getElementById(`textBoxBG${param}`);
       textToShow.style.opacity = 1;
+      bgToShow.style.opacity = 1;
     },
 
     hoverOutFunc: function(param) {
-      const textToHide = document.getElementById('textBox' + param);
+      const textToHide = document.getElementById(`textBox${param}`);
+      const bgToHide = document.getElementById(`textBoxBG${param}`);
       textToHide.style.opacity = 0;
+      bgToHide.style.opacity = 0;
     },
 
     // Change timeMode on click
@@ -116,7 +127,10 @@ let app = new Vue({
           console.log('getCoins', data)
           this.coins = data.data;
           // Build usable array for sorting
+          let i = 0;
           for(let item in this.coins){
+            this.coins[item].pos = i;
+            i++;
             this.coinsArray.push(this.coins[item]);
           }
         });
@@ -194,6 +208,14 @@ let app = new Vue({
         this.pricesNorm.push(normPrice);
       });
     },
+    calcPos: function() {
+      let i = 0;
+      this.coinsArray.forEach(coin => {
+        coin.pos = i;
+        i++;
+      });
+      this.moveTableBar();
+    },
 
     titleClick: function(param) {
       //Sort by title click and add/remove style
@@ -204,30 +226,35 @@ let app = new Vue({
           if(this.filterByHighest) this.coinsArray.sort((first, second) => second.quotes.USD.price - first.quotes.USD.price);
           else this.coinsArray.sort((first, second) => first.quotes.USD.price - second.quotes.USD.price);
           this.filterByHighest = !this.filterByHighest;
+          this.calcPos();
           break;
         case 'hourly':
           document.getElementById(param).classList.add('title-active');
           if(this.filterByHighest) this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_1h - first.quotes.USD.percent_change_1h);
           else this.coinsArray.sort((first, second) => first.quotes.USD.percent_change_1h - second.quotes.USD.percent_change_1h);
-          this.filterByHighest = !this.filterByHighest
+          this.filterByHighest = !this.filterByHighest;
+          this.calcPos();
           break;
         case 'daily':
           document.getElementById(param).classList.add('title-active');
           if(this.filterByHighest) this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_24h - first.quotes.USD.percent_change_24h);
           else this.coinsArray.sort((first, second) => first.quotes.USD.percent_change_24h - second.quotes.USD.percent_change_24h);
-          this.filterByHighest = !this.filterByHighest
+          this.filterByHighest = !this.filterByHighest;
+          this.calcPos();
           break;
         case 'weekly':
           document.getElementById(param).classList.add('title-active');
           if(this.filterByHighest) this.coinsArray.sort((first, second) => second.quotes.USD.percent_change_7d - first.quotes.USD.percent_change_7d);
           else this.coinsArray.sort((first, second) => first.quotes.USD.percent_change_7d - second.quotes.USD.percent_change_7d);
-          this.filterByHighest = !this.filterByHighest
+          this.filterByHighest = !this.filterByHighest;
+          this.calcPos();
           break;
         case 'marketCap':
           document.getElementById(param).classList.add('title-active');
           if(this.filterByHighest) this.coinsArray.sort((first, second) => second.quotes.USD.market_cap - first.quotes.USD.market_cap);
           else this.coinsArray.sort((first, second) => first.quotes.USD.market_cap - second.quotes.USD.market_cap);
-          this.filterByHighest = !this.filterByHighest
+          this.filterByHighest = !this.filterByHighest;
+          this.calcPos();
           break;
       }
     },
