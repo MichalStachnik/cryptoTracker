@@ -1,13 +1,3 @@
-//TODO: create news feed
-//TODO: implement refresh every 60 sec
-//TODO: get images
-//TODO: implement low price on bars
-//TODO: add user login with firebase
-//TODO: add inset to buttons on active
-//TODO: reduce num of horiztonal bars to same uniform amount
-//TODO: implement line with <path/> option for graph
-//TODO: add hover on table
-
 let app = new Vue({
   el: "#app",
   data: {
