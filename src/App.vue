@@ -1,69 +1,66 @@
 <template>
   <div id="app">
-    <!-- <div>{{  apikey  }}</div> -->
     <h2>{{ currentCoin }}</h2>
-      <svg width="40%" viewBox="0 0 440 440">
-        <!-- Horiztonal Bars -->
-        <g v-for="bar in barArray">
-          <text
-            x="0"
-            v-bind:y="405 - bar.yPos"
-          >
-            {{ bar.text }}
-          </text>
-          <!-- NEEDS TO BE FIXED -->
-          <rect
-            class="bar"
-            x="36"
-            v-bind:y="400 - bar.yPos"
-            height="1"
-            width="390"
-          >
-          </rect>
-        </g>
-        <!-- Vertical Bars -->
-        <g v-for="(price, index) in pricesNorm">
-          <rect
-            class="textBoxBG"
-            v-bind:id="'textBoxBG' + index"
-            v-bind:x="price.counter"
-            v-bind:y="375 - price.normHigh"
-            height="21"
-            width="30"
-          >
-          </rect>
-          <text
-            class="text"
-            v-bind:id="'textBox' + index"
-            v-bind:x="price.counter + 3"
-            v-bind:y="390 - price.normHigh"
-          >
-            {{ price.priceHigh }}
-          </text>
-          <rect 
-            class="vertBar"
-            v-bind:x="price.counter" 
-            v-bind:y="400 - price.normHigh" 
-            width="30" 
-            v-bind:height="price.normHigh"
-            v-on:mouseover="hoverFunc(index)"
-            v-on:mouseout="hoverOutFunc(index)"
-            v-bind:fill="price.fillColor"
-          >
-          </rect>
-          <text
-            v-bind:x="price.counter"
-            y="420"
-          >
-            {{ price.date }}
-          </text>
-        </g>
-      </svg>
-      <div>
-        <button class="title graphButton title-active" v-on:click="changeMode('daily')">1d</button>
-        <button class="title graphButton" v-on:click="changeMode('hourly')">1hr</button>
-      </div>
-      <div class="container">
+    <svg width="40%" viewBox="0 0 440 440">
+      <g v-for="bar in barArray" v-bind:key="bar.yPos">
+        <text
+          x="0"
+          v-bind:y="405 - bar.yPos"
+        >
+          {{ bar.text }}
+        </text>
+        <!-- NEEDS TO BE FIXED -->
+        <rect
+          class="bar"
+          x="36"
+          v-bind:y="400 - bar.yPos"
+          height="1"
+          width="390"
+        >
+        </rect>
+      </g>
+      <g v-for="(price, index) in pricesNorm" v-bind:key="index">
+        <rect
+          class="textBoxBG"
+          v-bind:id="'textBoxBG' + index"
+          v-bind:x="price.counter"
+          v-bind:y="375 - price.normHigh"
+          height="21"
+          width="30"
+        >
+        </rect>
+        <text
+          class="text"
+          v-bind:id="'textBox' + index"
+          v-bind:x="price.counter + 3"
+          v-bind:y="390 - price.normHigh"
+        >
+          {{ price.priceHigh }}
+        </text>
+        <rect 
+          class="vertBar"
+          v-bind:x="price.counter" 
+          v-bind:y="400 - price.normHigh" 
+          width="30" 
+          v-bind:height="price.normHigh"
+          v-on:mouseover="hoverFunc(index)"
+          v-on:mouseout="hoverOutFunc(index)"
+          v-bind:fill="price.fillColor"
+        >
+        </rect>
+        <text
+          v-bind:x="price.counter"
+          y="420"
+        >
+          {{ price.date }}
+        </text>
+      </g>
+    </svg>
+    <div>
+      <button class="title graphButton title-active" v-on:click="changeMode('daily')">1d</button>
+      <button class="title graphButton" v-on:click="changeMode('hourly')">1hr</button>
+    </div>
+    <div class="container">
         <svg id="tableBG">
           <rect
             id="tableBGBar"
@@ -82,7 +79,7 @@
           <button class="box title tableButton" id="daily" v-on:click="titleClick('daily')">24 Hour Change</button>
           <button class="box title tableButton" id="weekly" v-on:click="titleClick('weekly')">Weekly Change</button>
         </div>
-        <div class="row" v-for="coin in coinsArray">
+        <div class="row" v-for="coin in coinsArray" v-bind:key="coin.name">
           <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>  
           <div class="box">{{ getMarketCap(coin) }}</div>
           <div class="box">{{ coin.quotes.USD.price.toFixed(2) }}</div>
@@ -109,7 +106,8 @@ export default {
   name: 'app',
   data() {
     return {
-      // apikey: process.env.VUE_APP_API_KEY
+      cmcapikey: process.env.VUE_APP_CMC_KEY,
+      nomicsapikey: process.env.VUE_APP_NOMICS_KEY,
       coins: [],
       prices: [],
       pricesNorm: [],
@@ -126,8 +124,6 @@ export default {
 
   created: function() {
     this.getCoins();
-    this.getCoinPrices();
-    this.getCoinImage();
   },
 
   methods: {
@@ -137,6 +133,7 @@ export default {
       this.moveTableBar();
       this.getCoinPrices();
     },
+
     moveTableBar: function() {
       const clickedCoin = this.coinsArray.filter(coin => {
         return coin.symbol === this.currentCoin;
@@ -144,6 +141,7 @@ export default {
       const clickedCoinPos = clickedCoin[0].pos;
       this.hoverBarY = clickedCoinPos * 49;
     },
+
     hoverFunc: function(param) {
       const textToShow = document.getElementById(`textBox${param}`);
       const bgToShow = document.getElementById(`textBoxBG${param}`);
@@ -175,34 +173,52 @@ export default {
 
     drawBars: function() {
       this.barArray = []; 
-      // console.log(this.max, this.min);
 
       let localMin = this.max;
       this.pricesNorm.forEach(x => {
         if(x.priceHigh < localMin) localMin = x.priceHigh;
       })
       
-      // console.log(localMin);
       let divRate = this.max - this.min > 1000 ? 100 : 10
       let highBar = Math.floor(this.max / divRate) * divRate;
-      // console.log('HIGHBAR', highBar);
 
       let lowBar = Math.floor(this.min / divRate) * divRate;
-      // console.log('LOWBAR',lowBar);
     
       let diff = highBar - lowBar;
-      // console.log('diff', diff);
+
       let rate = 0;
       if(diff > 1000) rate = 100;
       else if(diff < 1000 && diff > 500) rate = 50;
       else if (diff < 500 && diff > 20) rate = 10;
       else rate = 1;
-      console.log('RATE', rate);
+
       for(let max = highBar; max > localMin - rate; max -= rate){
         let text = max;
         let yPos = 0 + (max - this.min) * (390 - 0) / (this.max - this.min);
         this.barArray.push({ text, yPos });
       }
+    },
+
+    getCoins: function() {
+        // const CMC_URL = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=5000&convert=USD'
+
+        // fetch(CMC_URL, {
+        //     method: 'GET',
+        //     headers: {
+        //       'Access-Control-Allow-Origin': '*', NOT PRESENT ON REQUESTED RESOURCE
+        //       'X-CMC_PRO_API_KEY': this.cmcapikey,
+        //       'Content-Type': 'application/json',
+        //       'Accept-Encoding': 'gzip'
+        //     }
+        // })
+        // .then(res => console.log('res from new request', res))
+        // .catch(err => console.warn(err));
+
+        const NOMICS_URL = `https://api.nomics.com/v1/currencies/ticker?key=${this.nomicsapikey}&interval=1d,30d`;
+        fetch(NOMICS_URL)
+          .then(res => res.json())
+          .then(data => console.log(data))
+          .catch(err => console.warn(err));
     },
 
     getCoinPrices: function() {
@@ -217,36 +233,6 @@ export default {
           this.prices = data.Data;
           this.getRange();
         });
-    },
-
-    getCoins: function() {
-      fetch('https://api.coinmarketcap.com/v2/ticker/?limit=10')
-        .then(res => res.json())
-        .catch(err => console.log(err))
-        .then(data => {
-          console.log('getCoins', data)
-          this.coins = data.data;
-          // Build usable array for sorting
-          let i = 0;
-          for(let item in this.coins){
-            this.coins[item].pos = i;
-            i++;
-            this.coinsArray.push(this.coins[item]);
-          }
-        });
-        console.log(this.coinsArray);
-    },
-
-    getCoinImage: function() {
-
-      // fetch('https://www.cryptocompare.com/api/data/coinlist')
-      //   .then(res => res.json())
-      //   .catch(err => console.log(err))
-      //   .then(data => {
-      //     console.log('DATA');
-      //     console.log(data);
-      //   });
-      
     },
 
     getMarketCap: function(coin) {
@@ -371,4 +357,3 @@ export default {
 <style>
 
 </style>
-
