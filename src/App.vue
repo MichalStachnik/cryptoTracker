@@ -133,7 +133,6 @@ export default {
         // })
         // .then(res => console.log('res from new request', res))
         // .catch(err => console.warn(err));
-
         const NOMICS_URL = `https://api.nomics.com/v1/currencies/ticker?key=${this.nomicsapikey}&interval=1d,7d,30d`;
         fetch(NOMICS_URL)
           .then(res => res.json())
@@ -248,10 +247,14 @@ export default {
       }
     }
   }
-
 }
 </script>
 
 <style>
+
+:root{
+  --primary: #2C3339;
+  --secondary: #EBEDF3;
+}
 
 </style>

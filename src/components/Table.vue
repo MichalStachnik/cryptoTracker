@@ -41,7 +41,7 @@
           <img v-bind:src="coin.logo_url" alt="">
         </div>
         <div class="box" v-on:click="handleClick(coin)">{{ coin.name }}</div>  
-        <div class="box">{{ coin.market_cap }}</div>
+        <div class="box">{{ coin.market_cap | formatMarketCap }}</div>
         <div class="box">{{ coin.price | trimNumber }}</div>
         <div class="box" v-bind:class="{ positive: coin['1d']['price_change'] > 0 }" v-if="coin['1d']">{{ coin['1d']['price_change'] | trimNumber }}</div>
         <div class="box" v-bind:class="{ positive: coin['7d']['price_change'] > 0 }" v-if="coin['7d']">{{ coin['7d']['price_change'] | trimNumber }}</div>
@@ -93,14 +93,27 @@ export default {
   },
 
   filters: {
+
     trimNumber: function(val) {
       return Number(val).toFixed(2);
     },
 
-    // TODO
-    // formatMarketCap: function() {
-
-    // }
+    formatMarketCap: function(price) {
+      // Format market cap
+      price = price.slice(0, -3);
+      let marketCapArr = price.split('');
+      let newMarketCap = '';
+      for(let i = marketCapArr.length - 1, iterator = 1; i > -1; i--, iterator++){
+        if(iterator % 3 === 0){
+          newMarketCap = marketCapArr[i] + newMarketCap;
+          if(i > 0){
+            newMarketCap = ',' + newMarketCap;
+          }
+        }
+        else newMarketCap = marketCapArr[i] + newMarketCap;    
+      }
+      return newMarketCap;
+    }
   },
 }
 </script>
