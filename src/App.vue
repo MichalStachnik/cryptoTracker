@@ -1,97 +1,18 @@
 <template>
   <div id="app">
     <h2>{{ currentCoin }}</h2>
-    <svg width="40%" viewBox="0 0 440 440">
-      <g v-for="bar in barArray" v-bind:key="bar.yPos">
-        <text
-          x="0"
-          v-bind:y="405 - bar.yPos"
-        >
-          {{ bar.text }}
-        </text>
-        <!-- NEEDS TO BE FIXED -->
-        <rect
-          class="bar"
-          x="36"
-          v-bind:y="400 - bar.yPos"
-          height="1"
-          width="390"
-        >
-        </rect>
-      </g>
-      <g v-for="(price, index) in pricesNorm" v-bind:key="index">
-        <rect
-          class="textBoxBG"
-          v-bind:id="'textBoxBG' + index"
-          v-bind:x="price.counter"
-          v-bind:y="375 - price.normHigh"
-          height="21"
-          width="30"
-        >
-        </rect>
-        <text
-          class="text"
-          v-bind:id="'textBox' + index"
-          v-bind:x="price.counter + 3"
-          v-bind:y="390 - price.normHigh"
-        >
-          {{ price.priceHigh }}
-        </text>
-        <rect 
-          class="vertBar"
-          v-bind:x="price.counter" 
-          v-bind:y="400 - price.normHigh" 
-          width="30" 
-          v-bind:height="price.normHigh"
-          v-on:mouseover="hoverFunc(index)"
-          v-on:mouseout="hoverOutFunc(index)"
-          v-bind:fill="price.fillColor"
-        >
-        </rect>
-        <text
-          v-bind:x="price.counter"
-          y="420"
-        >
-          {{ price.date }}
-        </text>
-      </g>
-    </svg>
+    <Graph></Graph>
     <div>
       <button class="title graphButton title-active" v-on:click="changeMode('daily')">1d</button>
       <button class="title graphButton" v-on:click="changeMode('hourly')">1hr</button>
     </div>
-    <div class="container">
-        <svg id="tableBG">
-          <rect
-            id="tableBGBar"
-            x="0"
-            v-bind:y="hoverBarY"
-            width="100%"
-            height="10%"
-          >
-          </rect>
-        </svg>
-        <div>
-          <div class="box"></div>
-          <button class="box title tableButton" id="marketCap" v-on:click="titleClick('marketCap')">Market Cap</button>
-          <button class="box title tableButton" id="price" v-on:click="titleClick('price')">Current Price</button>
-          <button class="box title tableButton" id="hourly" v-on:click="titleClick('hourly')">Hourly Change</button>
-          <button class="box title tableButton" id="daily" v-on:click="titleClick('daily')">24 Hour Change</button>
-          <button class="box title tableButton" id="weekly" v-on:click="titleClick('weekly')">Weekly Change</button>
-        </div>
-        <div class="row" v-for="coin in coinsArray" v-bind:key="coin.name">
-          <div class="box name" v-on:click="handleClick(coin)">{{ coin.name }}</div>  
-          <div class="box">{{ getMarketCap(coin) }}</div>
-          <div class="box">{{ coin.quotes.USD.price.toFixed(2) }}</div>
-          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_1h)">{{ coin.quotes.USD.percent_change_1h }}%</div>
-          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_24h)">{{ coin.quotes.USD.percent_change_24h }}%</div>
-          <div class="box" v-bind:style="getColor(coin.quotes.USD.percent_change_7d)">{{ coin.quotes.USD.percent_change_7d }}%</div>
-        </div>
-    </div>
+    <Table :coins="coins"></Table>
   </div>
 </template>
 
 <script>
+import Graph from './components/Graph';
+import Table from './components/Table';
 
 export default {
 // TODO: create news feed
@@ -104,6 +25,11 @@ export default {
 // TODO: implement line with <path/> option for graph
 // TODO: add hover on table
   name: 'app',
+
+  components: {
+    Graph, Table
+  },
+
   data() {
     return {
       cmcapikey: process.env.VUE_APP_CMC_KEY,
@@ -122,26 +48,20 @@ export default {
     }
   },
 
+  beforeCreate: function() {
+    // this.getCoins();
+  },
   created: function() {
     this.getCoins();
   },
+  beforeMount: function() {
+    // this.getCoins();
+  },
+  mounted: function() {
+    // this.getCoins();
+  },
 
   methods: {
-    // Change coin on click
-    handleClick: function(c) {
-      this.currentCoin = c.symbol;
-      this.moveTableBar();
-      this.getCoinPrices();
-    },
-
-    moveTableBar: function() {
-      const clickedCoin = this.coinsArray.filter(coin => {
-        return coin.symbol === this.currentCoin;
-      });
-      const clickedCoinPos = clickedCoin[0].pos;
-      this.hoverBarY = clickedCoinPos * 49;
-    },
-
     hoverFunc: function(param) {
       const textToShow = document.getElementById(`textBox${param}`);
       const bgToShow = document.getElementById(`textBoxBG${param}`);
@@ -213,18 +133,19 @@ export default {
         // })
         // .then(res => console.log('res from new request', res))
         // .catch(err => console.warn(err));
-
-        const NOMICS_URL = `https://api.nomics.com/v1/currencies/ticker?key=${this.nomicsapikey}&interval=1d,30d`;
+        const NOMICS_URL = `https://api.nomics.com/v1/currencies/ticker?key=${this.nomicsapikey}&interval=1d,7d,30d`;
         fetch(NOMICS_URL)
           .then(res => res.json())
-          .then(data => console.log(data))
+          .then(data => {
+            this.coins = data.filter((coin, index) => index < 99);
+            console.log(this.coins);
+          })
           .catch(err => console.warn(err));
     },
 
     getCoinPrices: function() {
 
       let fetchURL = `https://min-api.cryptocompare.com/data/${this.timeMode}?fsym=${this.currentCoin}&tsym=USD&limit=10`;
-
       fetch(fetchURL)
         .then(res => res.json())
         .catch(err => console.log(err))
@@ -233,24 +154,6 @@ export default {
           this.prices = data.Data;
           this.getRange();
         });
-    },
-
-    getMarketCap: function(coin) {
-
-      // Format market cap
-      let marketCapString = coin.quotes.USD.market_cap.toString();
-      let marketCapArr = marketCapString.split('');
-      let newMarketCap = '';
-      for(let i = marketCapArr.length - 1, iterator = 1; i > -1; i--, iterator++){
-        if(iterator % 3 === 0){
-          newMarketCap = marketCapArr[i] + newMarketCap;
-          if(i > 0){
-            newMarketCap = ',' + newMarketCap;
-          }
-        }
-        else newMarketCap = marketCapArr[i] + newMarketCap;    
-      }
-      return newMarketCap;
     },
 
     getRange: function() {
@@ -342,18 +245,16 @@ export default {
           this.calcPos();
           break;
       }
-    },
-
-    getColor(num) {
-      // return num > 0 ? 'color: #6ff96f;' : 'color: #E94347;';
-      return num > 0 ? 'color: lightgreen;' : 'color: salmon;';
-    },
-
+    }
   }
-
 }
 </script>
 
 <style>
+
+:root{
+  --primary: #2C3339;
+  --secondary: #EBEDF3;
+}
 
 </style>
